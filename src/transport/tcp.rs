@@ -70,7 +70,10 @@ impl Service for ModbusService {
     }
 }
 
-pub async fn start_tcp(bind: &str, state: Arc<std::sync::RwLock<SimState>>) -> Result<()> {
+pub async fn start_tcp(
+    bind: &str,
+    state: Arc<std::sync::RwLock<SimState>>,
+) -> Result<()> {
     let addr: SocketAddr = bind.parse()?;
     info!(addr = %addr, "modbus tcp listening");
     let listener = TcpListener::bind(addr).await?;

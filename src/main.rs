@@ -51,7 +51,7 @@ async fn main() -> Result<()> {
     )));
 
     let simulator_state = Arc::clone(&state);
-    tokio::spawn(async move { spawn_simulator(simulator_state).await });
+    let simulator_handle = tokio::spawn(async move { spawn_simulator(simulator_state).await });
 
     let mut tasks = Vec::new();
     if let Some(tcp) = config.tcp {
@@ -72,11 +72,9 @@ async fn main() -> Result<()> {
     info!(unit_id, "modsim started");
     tokio::signal::ctrl_c().await?;
     info!("shutdown requested");
-
+    simulator_handle.abort();
     for task in tasks {
-        if let Err(err) = task.await? {
-            error!(error = %err, "transport task failed");
-        }
+        task.abort();
     }
 
     Ok(())
