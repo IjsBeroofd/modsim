@@ -25,7 +25,7 @@ pub async fn start_rtu(
             Server::new(serial).serve_forever(service).await?;
         }
         RtuMode::PseudoPty => {
-            let (master, slave_path) = create_pty_pair()?;
+            let (master, slave_path, _slave_guard) = create_pty_pair()?;
             info!(slave = %slave_path, "modbus rtu pty listening");
             Server::new(master).serve_forever(service).await?;
         }
@@ -55,11 +55,11 @@ fn build_serial(device: &str, config: &RtuConfig) -> Result<tokio_serial::Serial
         .context("failed to open serial device")
 }
 
-fn create_pty_pair() -> Result<(tokio_serial::SerialStream, String)> {
+fn create_pty_pair() -> Result<(tokio_serial::SerialStream, String, tokio_serial::SerialStream)> {
     let (master, slave) = tokio_serial::SerialStream::pair()
         .context("failed to create pseudo-pty pair")?;
     let slave_name = slave
         .name()
         .unwrap_or_else(|| "unknown".to_string());
-    Ok((master, slave_name))
+    Ok((master, slave_name, slave))
 }
