@@ -147,3 +147,31 @@ fn default_stop_bits() -> u8 {
 fn default_unit_id() -> u8 {
     1
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_example_config() {
+        let s = std::fs::read_to_string("config.example.toml").expect("read example config");
+        let cfg: Config = toml::from_str(&s).expect("parse toml");
+        assert!(cfg.rtu.is_some());
+        assert!(cfg.rtu.unwrap().device.is_none());
+    }
+
+    #[test]
+    fn parse_rtu_with_device() {
+        let s = r#"
+[rtu]
+device = "/dev/ttyS0"
+baud_rate = 9600
+
+[device]
+unit_id = 1
+"#;
+        let cfg: Config = toml::from_str(&s).expect("parse toml");
+        assert!(cfg.rtu.is_some());
+        assert_eq!(cfg.rtu.unwrap().device, Some("/dev/ttyS0".to_string()));
+    }
+}
