@@ -7,12 +7,12 @@ update_ms = 500
 [tcp]
 bind = "0.0.0.0:5020"
 
-[rtu]
-# device = "/dev/tty.usbserial-1420" # required for serial mode
-baud_rate = 9600
-data_bits = 8
-parity = "none"     # none|even|odd
-stop_bits = 1
+# [rtu]
+# # device = "/dev/tty.usbserial-1420" # required for serial mode
+# baud_rate = 9600
+# data_bits = 8
+# parity = "none"     # none|even|odd
+# stop_bits = 1
 
 [device]
 unit_id = 1
