@@ -16,6 +16,49 @@ cp config.example.toml config.toml
 cargo run
 ```
 
+## Useful commands (development & CI) ✅
+
+- Run the simulator (uses `config.toml` by default):
+
+```bash
+cargo run
+# or run with a specific config file
+cargo run -- --config config.example.toml
+```
+
+- Run tests:
+
+```bash
+cargo test -- --nocapture
+```
+
+- Formatting & lint checks (same as CI):
+
+```bash
+cargo fmt -- --check
+cargo clippy --all-targets --all-features -- -D warnings
+# optional: security scan
+cargo audit || true
+```
+
+- Run the full CI locally (single command):
+
+```bash
+cargo fmt -- --check && \
+  cargo clippy --all-targets --all-features -- -D warnings && \
+  cargo test --workspace --verbose
+```
+
+- Build release binary:
+
+```bash
+cargo build --release
+```
+
+- Quick troubleshooting:
+  - If RTU is failing to start, ensure `rtu.device` is set in `config.toml` (RTU is serial-only).
+  - To run TCP-only, comment out the `[rtu]` section in `config.toml`.
+
 ## Configuration (TOML)
 
 ```toml
