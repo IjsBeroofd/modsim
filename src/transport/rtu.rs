@@ -2,34 +2,23 @@ use std::sync::Arc;
 
 use anyhow::{Context, Result};
 use tokio_modbus::server::rtu::Server;
-use tokio_serial::{DataBits, Parity, SerialPort, SerialPortBuilderExt, StopBits};
+use tokio_serial::{DataBits, Parity, SerialPortBuilderExt, StopBits};
 use tracing::info;
 
-use crate::config::{Parity as ConfigParity, RtuConfig, RtuMode};
+use crate::config::{Parity as ConfigParity, RtuConfig};
 use crate::sim::SimState;
 use crate::transport::tcp::ModbusService;
 
-pub async fn start_rtu(
-    config: &RtuConfig,
-    state: Arc<std::sync::RwLock<SimState>>,
-) -> Result<()> {
+pub async fn start_rtu(config: &RtuConfig, state: Arc<std::sync::RwLock<SimState>>) -> Result<()> {
     let service = ModbusService::new(state);
-    match config.mode {
-        RtuMode::Serial => {
-            let device = config
-                .device
-                .as_ref()
-                .context("rtu.device is required for serial mode")?;
-            info!(device = %device, "modbus rtu serial listening");
-            let serial = build_serial(device, config)?;
-            Server::new(serial).serve_forever(service).await?;
-        }
-        RtuMode::PseudoPty => {
-            let (master, slave_path, _slave_guard) = create_pty_pair()?;
-            info!(slave = %slave_path, "modbus rtu pty listening");
-            Server::new(master).serve_forever(service).await?;
-        }
-    }
+    // Only serial mode is supported now.
+    let device = config
+        .device
+        .as_ref()
+        .context("rtu.device is required for serial mode")?;
+    info!(device = %device, "modbus rtu serial listening");
+    let serial = build_serial(device, config)?;
+    Server::new(serial).serve_forever(service).await?;
     Ok(())
 }
 
@@ -55,11 +44,21 @@ fn build_serial(device: &str, config: &RtuConfig) -> Result<tokio_serial::Serial
         .context("failed to open serial device")
 }
 
-fn create_pty_pair() -> Result<(tokio_serial::SerialStream, String, tokio_serial::SerialStream)> {
-    let (master, slave) = tokio_serial::SerialStream::pair()
-        .context("failed to create pseudo-pty pair")?;
-    let slave_name = slave
-        .name()
-        .unwrap_or_else(|| "unknown".to_string());
-    Ok((master, slave_name, slave))
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::config::{RtuConfig, Parity as ConfigParity};
+
+    #[test]
+    fn build_serial_returns_error_for_nonexistent_device() {
+        let cfg = RtuConfig {
+            device: Some("/dev/doesnotexist".to_string()),
+            baud_rate: 9600,
+            data_bits: 8,
+            parity: ConfigParity::None,
+            stop_bits: 1,
+        };
+        let res = build_serial("/dev/doesnotexist", &cfg);
+        assert!(res.is_err());
+    }
 }

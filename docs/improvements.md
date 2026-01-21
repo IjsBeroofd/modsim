@@ -13,8 +13,7 @@ This document tracks suggested improvements and hardening steps for the Modbus s
 - Cache compiled script expressions to avoid parsing on every tick.
 - Validate configuration on startup (duplicate addresses, invalid ranges, `update_ms` too small).
 
-## RTU / PTY
-- Keep the PTY slave handle open so the PTY remains active and discoverable by clients.
+
 
 ## Documentation
 - Align README example with full config fields (include `data_bits` and `stop_bits`).

@@ -1,6 +1,6 @@
 # modsim
 
-Rust-based Modbus simulator supporting Modbus TCP and RTU (OS serial and auto-created pseudo-PTY). Configuration is TOML and defines all coils/registers and their dynamics.
+Rust-based Modbus simulator supporting Modbus TCP and RTU (OS serial). Configuration is TOML and defines all coils/registers and their dynamics.
 
 ## Quick Start
 
@@ -29,7 +29,6 @@ update_ms = 500
 bind = "0.0.0.0:5020"
 
 [rtu]
-mode = "pseudo-pty" # or "serial"
 # device = "/dev/tty.usbserial-1420" # required for serial mode
 baud_rate = 9600
 parity = "none"     # none|even|odd
@@ -87,9 +86,7 @@ max = 200
 - `noise`
 - `script` (math + time only; use `t` for seconds)
 
-## Pseudo-PTY Mode
 
-When `rtu.mode = "pseudo-pty"`, the simulator prints the PTY slave path on startup. Connect your Modbus RTU client to that path.
 
 ## Notes
 
