@@ -9,7 +9,7 @@ mod sim;
 mod transport;
 
 use config::Config;
-use sim::{spawn_simulator, SimState};
+use sim::{SimState, spawn_simulator};
 use transport::rtu::start_rtu;
 use transport::tcp::start_tcp;
 
@@ -23,7 +23,9 @@ struct Args {
 #[tokio::main(flavor = "multi_thread")]
 async fn main() -> Result<()> {
     tracing_subscriber::fmt()
-        .with_env_filter(tracing_subscriber::EnvFilter::from_default_env().add_directive("info".parse()?))
+        .with_env_filter(
+            tracing_subscriber::EnvFilter::from_default_env().add_directive("info".parse()?),
+        )
         .init();
 
     let args = Args::parse();
@@ -56,7 +58,9 @@ async fn main() -> Result<()> {
     let mut tasks = Vec::new();
     if let Some(tcp) = config.tcp {
         let state = Arc::clone(&state);
-        tasks.push(tokio::spawn(async move { start_tcp(&tcp.bind, state).await }));
+        tasks.push(tokio::spawn(
+            async move { start_tcp(&tcp.bind, state).await },
+        ));
     }
 
     if let Some(rtu) = config.rtu {
@@ -81,7 +85,8 @@ async fn main() -> Result<()> {
 }
 
 fn load_config(path: &str) -> Result<Config> {
-    let content = std::fs::read_to_string(path).with_context(|| format!("failed to read {path}"))?;
+    let content =
+        std::fs::read_to_string(path).with_context(|| format!("failed to read {path}"))?;
     let config: Config = toml::from_str(&content).context("failed to parse TOML")?;
     Ok(config)
 }

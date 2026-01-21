@@ -131,11 +131,7 @@ impl SimState {
 
     pub fn min_tick_ms(&self) -> u64 {
         let mut min_ms = self.global_update_ms.max(10);
-        for item in self
-            .coils
-            .values()
-            .chain(self.discrete_inputs.values())
-        {
+        for item in self.coils.values().chain(self.discrete_inputs.values()) {
             min_ms = min_ms.min(item.update_ms.max(10));
         }
         for item in self
@@ -176,7 +172,11 @@ impl SimState {
             item.value = value;
             item.next_due = now + Duration::from_millis(item.update_ms);
             if self.log_value_updates && changed {
-                info!(address = *address, value = item.value, "discrete input updated");
+                info!(
+                    address = *address,
+                    value = item.value,
+                    "discrete input updated"
+                );
             }
         }
 
@@ -190,7 +190,11 @@ impl SimState {
             item.value = value;
             item.next_due = now + Duration::from_millis(item.update_ms);
             if self.log_value_updates && changed {
-                info!(address = *address, value = item.value, "holding register updated");
+                info!(
+                    address = *address,
+                    value = item.value,
+                    "holding register updated"
+                );
             }
         }
 
@@ -204,7 +208,11 @@ impl SimState {
             item.value = value;
             item.next_due = now + Duration::from_millis(item.update_ms);
             if self.log_value_updates && changed {
-                info!(address = *address, value = item.value, "input register updated");
+                info!(
+                    address = *address,
+                    value = item.value,
+                    "input register updated"
+                );
             }
         }
     }
@@ -287,17 +295,21 @@ pub async fn spawn_simulator(state: std::sync::Arc<std::sync::RwLock<SimState>>)
 
 fn read_range_bool(map: &BTreeMap<u16, SimBoolItem>, address: u16, count: u16) -> Vec<bool> {
     (0..count)
-        .map(|offset| map.get(&(address + offset)).map(|item| item.value).unwrap_or(false))
+        .map(|offset| {
+            map.get(&(address + offset))
+                .map(|item| item.value)
+                .unwrap_or(false)
+        })
         .collect()
 }
 
-fn read_range_register(
-    map: &BTreeMap<u16, SimRegisterItem>,
-    address: u16,
-    count: u16,
-) -> Vec<u16> {
+fn read_range_register(map: &BTreeMap<u16, SimRegisterItem>, address: u16, count: u16) -> Vec<u16> {
     (0..count)
-        .map(|offset| map.get(&(address + offset)).map(|item| item.value).unwrap_or(0))
+        .map(|offset| {
+            map.get(&(address + offset))
+                .map(|item| item.value)
+                .unwrap_or(0)
+        })
         .collect()
 }
 
@@ -327,7 +339,11 @@ fn eval_numeric(current: f64, dynamics: &Option<DynamicsSpec>, elapsed: f64) -> 
             }
             offset + amplitude * (elapsed * std::f64::consts::TAU / period).sin()
         }
-        Some(DynamicsSpec::Ramp { min, max, period_ms }) => {
+        Some(DynamicsSpec::Ramp {
+            min,
+            max,
+            period_ms,
+        }) => {
             let period = (*period_ms as f64) / 1000.0;
             if period <= 0.0 {
                 return *min;
@@ -335,7 +351,11 @@ fn eval_numeric(current: f64, dynamics: &Option<DynamicsSpec>, elapsed: f64) -> 
             let phase = (elapsed % period) / period;
             min + (max - min) * phase
         }
-        Some(DynamicsSpec::Step { low, high, period_ms }) => {
+        Some(DynamicsSpec::Step {
+            low,
+            high,
+            period_ms,
+        }) => {
             let period = (*period_ms as f64) / 1000.0;
             if period <= 0.0 {
                 return *low;
