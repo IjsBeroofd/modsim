@@ -8,7 +8,6 @@ update_ms = 500
 bind = "0.0.0.0:5020"
 
 [rtu]
-mode = "pseudo-pty" # or "serial"
 # device = "/dev/tty.usbserial-1420" # required for serial mode
 baud_rate = 9600
 data_bits = 8

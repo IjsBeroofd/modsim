@@ -29,7 +29,6 @@ pub struct TcpConfig {
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct RtuConfig {
-    pub mode: RtuMode,
     pub device: Option<String>,
     #[serde(default = "default_baud_rate")]
     pub baud_rate: u32,
@@ -39,14 +38,9 @@ pub struct RtuConfig {
     pub parity: Parity,
     #[serde(default = "default_stop_bits")]
     pub stop_bits: u8,
-}
+} 
 
-#[derive(Debug, Deserialize, Clone)]
-#[serde(rename_all = "kebab-case")]
-pub enum RtuMode {
-    Serial,
-    PseudoPty,
-}
+ 
 
 #[derive(Debug, Deserialize, Clone)]
 #[serde(rename_all = "kebab-case")]
