@@ -47,7 +47,7 @@ fn build_serial(device: &str, config: &RtuConfig) -> Result<tokio_serial::Serial
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::config::{RtuConfig, Parity as ConfigParity};
+    use crate::config::{Parity as ConfigParity, RtuConfig};
 
     #[test]
     fn build_serial_returns_error_for_nonexistent_device() {

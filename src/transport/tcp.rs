@@ -81,7 +81,9 @@ pub async fn start_tcp(bind: &str, state: Arc<std::sync::RwLock<SimState>>) -> R
         tracing::error!(error = %err, "modbus tcp connection error");
     };
     // Start the server in the background so tests can connect to it when needed.
-    tokio::spawn(async move { let _ = server.serve(&on_connected, on_error).await; });
+    tokio::spawn(async move {
+        let _ = server.serve(&on_connected, on_error).await;
+    });
     Ok(())
 }
 
