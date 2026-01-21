@@ -9,10 +9,7 @@ use crate::config::{Parity as ConfigParity, RtuConfig};
 use crate::sim::SimState;
 use crate::transport::tcp::ModbusService;
 
-pub async fn start_rtu(
-    config: &RtuConfig,
-    state: Arc<std::sync::RwLock<SimState>>,
-) -> Result<()> {
+pub async fn start_rtu(config: &RtuConfig, state: Arc<std::sync::RwLock<SimState>>) -> Result<()> {
     let service = ModbusService::new(state);
     // Only serial mode is supported now.
     let device = config
@@ -45,4 +42,23 @@ fn build_serial(device: &str, config: &RtuConfig) -> Result<tokio_serial::Serial
     builder
         .open_native_async()
         .context("failed to open serial device")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::config::{RtuConfig, Parity as ConfigParity};
+
+    #[test]
+    fn build_serial_returns_error_for_nonexistent_device() {
+        let cfg = RtuConfig {
+            device: Some("/dev/doesnotexist".to_string()),
+            baud_rate: 9600,
+            data_bits: 8,
+            parity: ConfigParity::None,
+            stop_bits: 1,
+        };
+        let res = build_serial("/dev/doesnotexist", &cfg);
+        assert!(res.is_err());
+    }
 }
